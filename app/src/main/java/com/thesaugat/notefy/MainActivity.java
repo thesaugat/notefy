@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,6 +25,7 @@ import com.thesaugat.notefy.db.NoteDataClass;
 import com.thesaugat.notefy.db.NoteEntry;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -31,23 +33,32 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements NoteItemClickLister {
     FloatingActionButton fab;
     RecyclerView notesRv;
+    TextView tvInfo;
     DBHelper dbHelper;
+    List<NoteDataClass> noteDataClassList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
-        setClickListners();
         dbHelper = new DBHelper(this);
         notesRv = findViewById(R.id.notesRv);
+        tvInfo = findViewById(R.id.tvInfo);
+
+        setClickListners();
         setRv();
     }
 
     void setRv() {
+        noteDataClassList = dbHelper.getdata();
+        if (noteDataClassList.isEmpty())
+            tvInfo.setText("Empty notebook, Please Add notes to View!");
+        else
+            tvInfo.setText("Long tap on notes to delete.");
+
         notesRv.setHasFixedSize(true);
-        NotesAdapter notesAdapter = new NotesAdapter(this, dbHelper.getdata(), this);
+        NotesAdapter notesAdapter = new NotesAdapter(this, noteDataClassList, this);
         notesRv.setLayoutManager(new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL));
         notesRv.setAdapter(notesAdapter);
     }
